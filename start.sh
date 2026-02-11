@@ -13,6 +13,11 @@ fi
 # Create n8n data directory
 mkdir -p /home/node/emika/n8n-data
 
+# Start Express companion app first (serves loading UI while n8n boots)
+echo "Starting dashboard on port 3000..."
+node server.js &
+DASHBOARD_PID=$!
+
 # Start n8n in background on port 5678
 export N8N_USER_FOLDER=/home/node/emika/n8n-data
 export N8N_PORT=5678
@@ -22,6 +27,7 @@ export GENERIC_TIMEZONE=UTC
 export N8N_RUNNERS_ENABLED=true
 export N8N_SECURE_COOKIE=false
 n8n start &
+N8N_PID=$!
 
 # Wait for n8n to be ready
 echo "Waiting for n8n to start..."
@@ -33,5 +39,5 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-# Start Express companion app
-exec node server.js
+# Keep running (wait for dashboard process)
+wait $DASHBOARD_PID

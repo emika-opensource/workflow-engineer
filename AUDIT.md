@@ -210,3 +210,38 @@ The Workflow Engineer has a polished UI and comprehensive content (12 templates,
 **Fix items #1 and #2 and the time-to-first-value drops from ~10 minutes to ~1 minute.** Fix #3 so the dashboard isn't lying about stats. Everything else is polish.
 
 The AI agent skill docs (SKILL.md) are genuinely good — one of the better skill files I've seen. The agent should be effective at building and managing workflows once the infrastructure blockers are removed.
+
+---
+
+## Fixes Applied
+
+*Applied 2026-02-11 by subagent*
+
+### Critical
+1. **✅ Auto-configure n8n API key** — `server.js` now runs `autoConfigureApiKey()` on startup. Attempts owner setup, login+key generation, and no-auth detection. Falls back to manual setup gracefully.
+2. **✅ First-run onboarding wizard** — New 3-step wizard in `app.js`: (a) n8n boot progress with polling, (b) category picker, (c) template deploy. Shows automatically when `setupComplete` is false.
+3. **✅ Analytics bug fixed** — Changed `e.finished && !e.stoppedAt` → `e.finished === true` for success and `e.finished === false` for errors. Fixed in both server.js analytics endpoint AND all client-side rendering (dashboard, executions, exec filters).
+
+### High
+4. **✅ Post-deploy guided flow** — After deploying a template, a modal shows: checklist (deployed → credentials needed → test → activate), webhook URLs if applicable, credential setup links, and direct link to edit in n8n.
+5. **✅ Quick Start on dashboard** — First-run shows onboarding wizard. Empty executions state now shows "Deploy a template" CTA. Dashboard "Create Workflow" button now points to templates (more useful for new users).
+6. **✅ Button loading states** — Deploy, Execute, Save API Key buttons all disable and show spinner during async operations via `setButtonLoading()` helper. Prevents duplicate clicks.
+7. **✅ Human-readable error messages** — `humanError()` function maps n8n error codes (401, 403, 502, ECONNREFUSED, timeout) to helpful messages. Applied to all server API error responses.
+
+### Medium
+8. **✅ Templates/connectors extracted to JSON** — Moved ~300 lines of data from `server.js` to `data/templates.json` and `data/connectors.json`. Server now `require()`s them.
+9. **✅ n8n credential deep-links** — Connector detail pages now have "Set up in n8n" button linking to `http://localhost:5678/credentials/new`. Settings page also links to credentials.
+10. **✅ Webhook URL display** — Template detail page shows webhook test/production URLs for webhook-based templates. Deploy response includes webhook URLs. Post-deploy modal displays them.
+11. **✅ Confirmation dialogs** — Added `confirm()` for deploy, execute, and delete actions.
+12. **✅ Boot sequence improvement** — `start.sh` now starts the Express dashboard FIRST (serves onboarding UI immediately), then n8n in background. Dashboard polls n8n status and updates UI when ready.
+
+### Additional Fixes
+13. **✅ Input validation on PUT /config** — Only whitelisted fields (`n8nApiKey`, `preferences`, `connectedServices`, `setupComplete`) are accepted. Type-checked before merging.
+14. **✅ Workflow deletion** — Added `DELETE /api/workflows/:id` endpoint and delete button in workflow detail view.
+15. **✅ Fixed fetch timeout bug** — Replaced `{ timeout: 3000 }` (non-functional in node-fetch) with proper `AbortController` signal with 10s timeout.
+16. **✅ Separate filter state** — Templates and connectors now use `state.templateFilter` and `state.connectorFilter` instead of shared `state.activeFilter`.
+17. **✅ Error handling for API calls** — Client-side `api()` function now checks `res.ok` and returns error objects. All renderers handle `.error` property gracefully with user-visible messages.
+18. **✅ n8n offline loading state** — Offline message now shows pulsing loading dot indicating n8n is booting, rather than a static error.
+19. **✅ BOOTSTRAP.md compressed** — Reduced from verbose 6-step narrative to concise guide with pre-flight checks, fast-track path, error recovery, and API key prerequisite mention.
+20. **✅ SKILL.md enhanced** — Added webhook URL format section, troubleshooting table (common errors + fixes), and n8n initial setup guidance.
+21. **✅ Analytics partial failure handling** — If executions API fails but workflows succeeds, analytics still returns partial data with `execError` field instead of full failure.

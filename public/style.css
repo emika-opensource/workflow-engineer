@@ -213,3 +213,53 @@ select.form-input { appearance: none; -webkit-appearance: none; background-image
 
 /* === Execution filters === */
 .exec-filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+
+/* === Small Spinner === */
+.spinner-sm { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; vertical-align: middle; }
+
+/* === Onboarding Wizard === */
+.onboarding-overlay { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 56px); padding: 20px; }
+.onboarding-wizard { max-width: 560px; width: 100%; }
+.onboarding-header { text-align: center; margin-bottom: 32px; }
+.onboarding-header svg { color: var(--accent); margin-bottom: 12px; }
+.onboarding-header h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.onboarding-header p { color: var(--text-muted); font-size: 14px; }
+
+.onboarding-step { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; }
+.onboarding-step h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.onboarding-step p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+
+.step-indicator { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 24px; }
+.step-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-hover); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-muted); flex-shrink: 0; }
+.step-dot.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.step-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+.step-dot.done svg { width: 12px; height: 12px; }
+.step-line { width: 40px; height: 2px; background: var(--border); }
+.step-line.done { background: var(--green); }
+
+.onboarding-status { display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--bg-hover); border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 13px; }
+
+.onboarding-categories { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.onboarding-cat { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--text); text-align: left; transition: all .15s; cursor: pointer; }
+.onboarding-cat:hover { border-color: var(--accent); background: rgba(124,58,237,.08); }
+.onboarding-cat span { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+.onboarding-templates { display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; }
+.onboarding-tpl-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); }
+.onboarding-tpl-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.onboarding-tpl-card p { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+.onboarding-tpl-card .btn { flex-shrink: 0; }
+
+/* === Modal === */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
+.modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+.modal-content h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+
+.deploy-checklist { display: flex; flex-direction: column; gap: 12px; }
+.checklist-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; padding: 10px; background: var(--bg-hover); border-radius: var(--radius-sm); }
+.checklist-item.done { color: var(--green); }
+.checklist-item.pending { color: var(--text-muted); }
+.checklist-icon { flex-shrink: 0; width: 18px; text-align: center; }
+.checklist-item .done svg { color: var(--green); }
+
+.webhook-url { background: var(--bg-input); padding: 3px 8px; border-radius: 4px; font-size: 11px; word-break: break-all; color: var(--accent-light); }

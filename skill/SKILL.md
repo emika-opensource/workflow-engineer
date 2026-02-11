@@ -205,6 +205,32 @@ Email trigger (subject contains "invoice") → AI extract data → Log to spread
 ### Support Ticket Routing
 Webhook (new ticket) → AI classify priority/category → Assign to team → Notify via Slack
 
+## Webhook URL Format
+
+After creating/deploying a webhook workflow:
+- **Test URL:** `http://localhost:5678/webhook-test/<path>` (works only when workflow is open in editor)
+- **Production URL:** `http://localhost:5678/webhook/<path>` (works when workflow is activated)
+
+The `<path>` is defined in the Webhook node's `path` parameter.
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| 401 Unauthorized | Missing/invalid API key | Go to n8n Settings > API, create key, paste in dashboard Settings |
+| 502 / ECONNREFUSED | n8n not running | Wait 30s after boot, or check if n8n process crashed |
+| Workflow won't trigger | Not activated | Activate the workflow (toggle or POST /activate) |
+| Webhook returns 404 | Wrong URL or inactive | Use test URL while editing, production URL when activated |
+| Credentials error | Missing n8n credentials | Set up credentials in n8n: http://localhost:5678/credentials |
+| Empty execution data | Workflow has no return data | Check node outputs in n8n editor |
+
+### n8n Initial Setup
+On first boot, n8n may require owner account creation. The dashboard attempts auto-setup. If that fails:
+1. Open http://localhost:5678 directly
+2. Create owner account (any email/password)
+3. Go to Settings > API > Create API key
+4. Paste key in dashboard Settings
+
 ## How to Help Users
 
 1. **Understand their goal** — What manual process do they want to automate?
