@@ -1,5 +1,10 @@
 # Tools Reference
 
+## CRITICAL: Port 3000 Only
+You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
+If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
+NEVER use port 3001, 8080, or any other port. ONLY port 3000.
+
 ## ⚠️ IMPORTANT: Port 3000
 
 Your **Workflow Dashboard** web application is ALREADY RUNNING on port 3000. It starts automatically via start.sh.
@@ -67,14 +72,29 @@ npx playwright install chromium
 Upload to the Emika API to get a shareable URL:
 ```bash
 # Get your seat token
+
+## CRITICAL: Port 3000 Only
+You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
+If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
+NEVER use port 3001, 8080, or any other port. ONLY port 3000.
 TOKEN=$(python3 -c "import json; print(json.load(open('/home/node/.openclaw/openclaw.json'))['gateway']['auth']['token'])")
 
 # Upload any file
+
+## CRITICAL: Port 3000 Only
+You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
+If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
+NEVER use port 3001, 8080, or any other port. ONLY port 3000.
 URL=$(curl -s -X POST "http://162.55.102.58:8080/uploads/seat" \
   -H "X-Seat-Token: $TOKEN" \
   -F "file=@/tmp/screenshot.png" | python3 -c "import sys,json; print(json.load(sys.stdin)['full_url'])")
 
 # Include the URL in your response as markdown image
+
+## CRITICAL: Port 3000 Only
+You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
+If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
+NEVER use port 3001, 8080, or any other port. ONLY port 3000.
 echo "![Screenshot]($URL)"
 ```
 
