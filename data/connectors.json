@@ -1,0 +1,424 @@
+[
+  {
+    "name": "Slack",
+    "description": "Team messaging and notifications",
+    "category": "communication",
+    "authType": "OAuth2",
+    "n8nNodeName": "n8n-nodes-base.slack",
+    "setupSteps": [
+      "Create a Slack App at api.slack.com",
+      "Enable OAuth & add scopes: chat:write, channels:read",
+      "Install to workspace and copy Bot Token",
+      "In n8n, create Slack OAuth2 credential with Client ID and Secret"
+    ],
+    "exampleUse": "Send notifications, read channels, manage messages"
+  },
+  {
+    "name": "Discord",
+    "description": "Community and team chat platform",
+    "category": "communication",
+    "authType": "Webhook/Bot Token",
+    "n8nNodeName": "n8n-nodes-base.discord",
+    "setupSteps": [
+      "Create a Discord Application at discord.com/developers",
+      "Add a Bot and copy the token",
+      "Enable required Intents (Message Content)",
+      "In n8n, use Discord credential with Bot Token"
+    ],
+    "exampleUse": "Post messages, manage channels, react to events"
+  },
+  {
+    "name": "Telegram",
+    "description": "Messaging app with bot API",
+    "category": "communication",
+    "authType": "API Token",
+    "n8nNodeName": "n8n-nodes-base.telegram",
+    "setupSteps": [
+      "Message @BotFather on Telegram",
+      "Create new bot with /newbot",
+      "Copy the API token",
+      "In n8n, create Telegram credential with the token"
+    ],
+    "exampleUse": "Send messages, receive commands, inline keyboards"
+  },
+  {
+    "name": "Email (IMAP)",
+    "description": "Receive and process emails",
+    "category": "communication",
+    "authType": "IMAP Credentials",
+    "n8nNodeName": "n8n-nodes-base.imapEmail",
+    "setupSteps": [
+      "Get IMAP server details from your email provider",
+      "Enable IMAP access (Gmail: Settings > Forwarding and POP/IMAP)",
+      "For Gmail, generate an App Password",
+      "In n8n, create IMAP credential with host, port, user, password"
+    ],
+    "exampleUse": "Trigger workflows on new emails, process attachments"
+  },
+  {
+    "name": "Twilio",
+    "description": "SMS and voice communication",
+    "category": "communication",
+    "authType": "API Key",
+    "n8nNodeName": "n8n-nodes-base.twilio",
+    "setupSteps": [
+      "Sign up at twilio.com",
+      "Get Account SID and Auth Token from Console",
+      "Buy a phone number",
+      "In n8n, create Twilio credential with SID and Auth Token"
+    ],
+    "exampleUse": "Send SMS, make calls, receive messages via webhook"
+  },
+  {
+    "name": "HubSpot",
+    "description": "CRM, marketing, and sales platform",
+    "category": "crm",
+    "authType": "OAuth2 / API Key",
+    "n8nNodeName": "n8n-nodes-base.hubspot",
+    "setupSteps": [
+      "Go to HubSpot Developer portal",
+      "Create a Private App with required scopes",
+      "Copy the Access Token",
+      "In n8n, create HubSpot credential (API Key or OAuth2)"
+    ],
+    "exampleUse": "Create contacts, manage deals, sync CRM data"
+  },
+  {
+    "name": "Salesforce",
+    "description": "Enterprise CRM platform",
+    "category": "crm",
+    "authType": "OAuth2",
+    "n8nNodeName": "n8n-nodes-base.salesforce",
+    "setupSteps": [
+      "Create a Connected App in Salesforce Setup",
+      "Enable OAuth with required scopes",
+      "Copy Consumer Key and Consumer Secret",
+      "In n8n, create Salesforce OAuth2 credential"
+    ],
+    "exampleUse": "Manage leads, contacts, opportunities, custom objects"
+  },
+  {
+    "name": "Pipedrive",
+    "description": "Sales CRM and pipeline management",
+    "category": "crm",
+    "authType": "API Token",
+    "n8nNodeName": "n8n-nodes-base.pipedrive",
+    "setupSteps": [
+      "Go to Pipedrive Settings > Personal Preferences > API",
+      "Copy your personal API token",
+      "In n8n, create Pipedrive credential with the token"
+    ],
+    "exampleUse": "Manage deals, contacts, activities, pipelines"
+  },
+  {
+    "name": "Notion",
+    "description": "All-in-one workspace and database",
+    "category": "project",
+    "authType": "OAuth2 / Internal Integration",
+    "n8nNodeName": "n8n-nodes-base.notion",
+    "setupSteps": [
+      "Go to notion.so/my-integrations",
+      "Create a new integration",
+      "Copy the Internal Integration Token",
+      "Share target pages/databases with the integration",
+      "In n8n, create Notion credential with the token"
+    ],
+    "exampleUse": "Create pages, query databases, update properties"
+  },
+  {
+    "name": "Asana",
+    "description": "Project and task management",
+    "category": "project",
+    "authType": "OAuth2 / PAT",
+    "n8nNodeName": "n8n-nodes-base.asana",
+    "setupSteps": [
+      "Go to Asana Developer Console",
+      "Create a Personal Access Token",
+      "In n8n, create Asana credential with the token"
+    ],
+    "exampleUse": "Create tasks, manage projects, track progress"
+  },
+  {
+    "name": "Trello",
+    "description": "Kanban-style project boards",
+    "category": "project",
+    "authType": "API Key + Token",
+    "n8nNodeName": "n8n-nodes-base.trello",
+    "setupSteps": [
+      "Go to trello.com/power-ups/admin",
+      "Create a new Power-Up to get API key",
+      "Generate a Token via the authorization URL",
+      "In n8n, create Trello credential with Key and Token"
+    ],
+    "exampleUse": "Create cards, move between lists, add comments"
+  },
+  {
+    "name": "Linear",
+    "description": "Modern issue tracking for teams",
+    "category": "project",
+    "authType": "API Key / OAuth2",
+    "n8nNodeName": "n8n-nodes-base.linear",
+    "setupSteps": [
+      "Go to Linear Settings > API",
+      "Create a Personal API Key",
+      "In n8n, create Linear credential with the key"
+    ],
+    "exampleUse": "Create issues, manage projects, track cycles"
+  },
+  {
+    "name": "Jira",
+    "description": "Issue and project tracking",
+    "category": "project",
+    "authType": "Basic Auth / OAuth2",
+    "n8nNodeName": "n8n-nodes-base.jira",
+    "setupSteps": [
+      "Go to Atlassian API Tokens page",
+      "Create a new API token",
+      "In n8n, use email + API token as Basic Auth",
+      "Set your Jira domain (yoursite.atlassian.net)"
+    ],
+    "exampleUse": "Create issues, transition statuses, search with JQL"
+  },
+  {
+    "name": "Google Sheets",
+    "description": "Spreadsheet data management",
+    "category": "data",
+    "authType": "OAuth2 / Service Account",
+    "n8nNodeName": "n8n-nodes-base.googleSheets",
+    "setupSteps": [
+      "Go to Google Cloud Console",
+      "Enable Google Sheets API",
+      "Create OAuth2 credentials or Service Account",
+      "In n8n, create Google Sheets OAuth2 credential and authorize"
+    ],
+    "exampleUse": "Read/write rows, append data, update cells"
+  },
+  {
+    "name": "Airtable",
+    "description": "Flexible database and spreadsheet hybrid",
+    "category": "data",
+    "authType": "API Key / PAT",
+    "n8nNodeName": "n8n-nodes-base.airtable",
+    "setupSteps": [
+      "Go to airtable.com/create/tokens",
+      "Create a Personal Access Token with required scopes",
+      "In n8n, create Airtable credential with the token"
+    ],
+    "exampleUse": "CRUD records, filter views, link tables"
+  },
+  {
+    "name": "PostgreSQL",
+    "description": "Open-source relational database",
+    "category": "data",
+    "authType": "Connection String",
+    "n8nNodeName": "n8n-nodes-base.postgres",
+    "setupSteps": [
+      "Get your PostgreSQL host, port, database name",
+      "Create a user with appropriate permissions",
+      "In n8n, create Postgres credential with host, port, database, user, password"
+    ],
+    "exampleUse": "Query data, insert/update records, run SQL"
+  },
+  {
+    "name": "MongoDB",
+    "description": "NoSQL document database",
+    "category": "data",
+    "authType": "Connection String",
+    "n8nNodeName": "n8n-nodes-base.mongoDb",
+    "setupSteps": [
+      "Get your MongoDB connection string (Atlas or self-hosted)",
+      "Ensure network access is configured",
+      "In n8n, create MongoDB credential with connection string"
+    ],
+    "exampleUse": "Find, insert, update, aggregate documents"
+  },
+  {
+    "name": "MySQL",
+    "description": "Popular relational database",
+    "category": "data",
+    "authType": "Connection Credentials",
+    "n8nNodeName": "n8n-nodes-base.mySql",
+    "setupSteps": [
+      "Get MySQL host, port, database name",
+      "Create a user with required permissions",
+      "In n8n, create MySQL credential with connection details"
+    ],
+    "exampleUse": "Run queries, manage records, join tables"
+  },
+  {
+    "name": "AWS S3",
+    "description": "Cloud object storage",
+    "category": "cloud",
+    "authType": "Access Key + Secret",
+    "n8nNodeName": "n8n-nodes-base.awsS3",
+    "setupSteps": [
+      "Create an IAM user in AWS Console",
+      "Attach S3 permissions policy",
+      "Generate Access Key ID and Secret Access Key",
+      "In n8n, create AWS credential with the keys"
+    ],
+    "exampleUse": "Upload/download files, list objects, manage buckets"
+  },
+  {
+    "name": "Google Drive",
+    "description": "Cloud file storage and sharing",
+    "category": "cloud",
+    "authType": "OAuth2",
+    "n8nNodeName": "n8n-nodes-base.googleDrive",
+    "setupSteps": [
+      "Enable Google Drive API in Cloud Console",
+      "Create OAuth2 credentials",
+      "In n8n, create Google Drive OAuth2 credential and authorize"
+    ],
+    "exampleUse": "Upload files, create folders, share documents"
+  },
+  {
+    "name": "Dropbox",
+    "description": "Cloud file hosting",
+    "category": "cloud",
+    "authType": "OAuth2",
+    "n8nNodeName": "n8n-nodes-base.dropbox",
+    "setupSteps": [
+      "Create an app at dropbox.com/developers",
+      "Choose scoped access with required permissions",
+      "Copy App Key and App Secret",
+      "In n8n, create Dropbox OAuth2 credential"
+    ],
+    "exampleUse": "Upload/download files, sync folders"
+  },
+  {
+    "name": "Mailchimp",
+    "description": "Email marketing platform",
+    "category": "marketing",
+    "authType": "API Key / OAuth2",
+    "n8nNodeName": "n8n-nodes-base.mailchimp",
+    "setupSteps": [
+      "Go to Mailchimp Account > Extras > API Keys",
+      "Create a new API key",
+      "Note the data center from your API key (e.g., us19)",
+      "In n8n, create Mailchimp credential with the key"
+    ],
+    "exampleUse": "Add subscribers, send campaigns, manage lists"
+  },
+  {
+    "name": "SendGrid",
+    "description": "Email delivery and marketing",
+    "category": "marketing",
+    "authType": "API Key",
+    "n8nNodeName": "n8n-nodes-base.sendGrid",
+    "setupSteps": [
+      "Go to SendGrid Settings > API Keys",
+      "Create a new API key with required permissions",
+      "In n8n, create SendGrid credential with the key"
+    ],
+    "exampleUse": "Send transactional emails, manage contacts, templates"
+  },
+  {
+    "name": "ActiveCampaign",
+    "description": "Marketing automation and CRM",
+    "category": "marketing",
+    "authType": "API Key + URL",
+    "n8nNodeName": "n8n-nodes-base.activeCampaign",
+    "setupSteps": [
+      "Go to ActiveCampaign Settings > Developer",
+      "Copy API URL and API Key",
+      "In n8n, create ActiveCampaign credential with URL and Key"
+    ],
+    "exampleUse": "Manage contacts, automations, deals, tags"
+  },
+  {
+    "name": "GitHub",
+    "description": "Code hosting and collaboration",
+    "category": "dev",
+    "authType": "PAT / OAuth2",
+    "n8nNodeName": "n8n-nodes-base.github",
+    "setupSteps": [
+      "Go to GitHub Settings > Developer Settings > Personal Access Tokens",
+      "Create a fine-grained or classic token",
+      "Select required repository permissions",
+      "In n8n, create GitHub credential with the token"
+    ],
+    "exampleUse": "Create issues, manage PRs, trigger on events"
+  },
+  {
+    "name": "GitLab",
+    "description": "DevOps platform with CI/CD",
+    "category": "dev",
+    "authType": "PAT",
+    "n8nNodeName": "n8n-nodes-base.gitlab",
+    "setupSteps": [
+      "Go to GitLab User Settings > Access Tokens",
+      "Create a Personal Access Token with api scope",
+      "In n8n, create GitLab credential with the token"
+    ],
+    "exampleUse": "Manage issues, merge requests, pipelines"
+  },
+  {
+    "name": "Webhook",
+    "description": "Receive HTTP requests to trigger workflows",
+    "category": "dev",
+    "authType": "None (built-in)",
+    "n8nNodeName": "n8n-nodes-base.webhook",
+    "setupSteps": [
+      "Add a Webhook node to your workflow",
+      "Configure HTTP method (GET/POST)",
+      "Activate the workflow to get the webhook URL",
+      "Send requests to the generated URL"
+    ],
+    "exampleUse": "Receive form submissions, API callbacks, event notifications"
+  },
+  {
+    "name": "HTTP Request",
+    "description": "Make API calls to any service",
+    "category": "dev",
+    "authType": "Various (Header, OAuth2, etc.)",
+    "n8nNodeName": "n8n-nodes-base.httpRequest",
+    "setupSteps": [
+      "Add HTTP Request node",
+      "Set URL, method, headers, and body",
+      "Configure authentication if needed",
+      "Use expressions to inject dynamic data"
+    ],
+    "exampleUse": "Call any REST API, scrape web data, integrate custom services"
+  },
+  {
+    "name": "OpenAI",
+    "description": "GPT models for text generation and analysis",
+    "category": "ai",
+    "authType": "API Key",
+    "n8nNodeName": "@n8n/n8n-nodes-langchain.openAi",
+    "setupSteps": [
+      "Go to platform.openai.com/api-keys",
+      "Create a new API key",
+      "Ensure billing is set up",
+      "In n8n, create OpenAI credential with the key"
+    ],
+    "exampleUse": "Generate text, classify content, extract data, chat"
+  },
+  {
+    "name": "Anthropic",
+    "description": "Claude AI models for advanced reasoning",
+    "category": "ai",
+    "authType": "API Key",
+    "n8nNodeName": "@n8n/n8n-nodes-langchain.anthropic",
+    "setupSteps": [
+      "Go to console.anthropic.com",
+      "Create an API key",
+      "In n8n, create Anthropic credential with the key"
+    ],
+    "exampleUse": "Complex reasoning, document analysis, code generation"
+  },
+  {
+    "name": "Google AI (Gemini)",
+    "description": "Google Gemini models",
+    "category": "ai",
+    "authType": "API Key",
+    "n8nNodeName": "@n8n/n8n-nodes-langchain.googleGemini",
+    "setupSteps": [
+      "Go to makersuite.google.com/app/apikey",
+      "Create an API key",
+      "In n8n, create Google Gemini credential with the key"
+    ],
+    "exampleUse": "Multimodal AI, text generation, vision tasks"
+  }
+]

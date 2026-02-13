@@ -1,0 +1,1291 @@
+[
+  {
+    "id": "lead-to-crm",
+    "name": "Lead to CRM",
+    "category": "crm",
+    "description": "Capture leads via webhook, enrich with company data, and push to your CRM automatically.",
+    "complexity": "beginner",
+    "triggers": [
+      "Webhook"
+    ],
+    "actions": [
+      "HTTP Request",
+      "HubSpot"
+    ],
+    "n8nJson": {
+      "name": "Lead to CRM",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "lead-capture",
+            "responseMode": "onReceived"
+          },
+          "id": "n1",
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "url": "https://api.clearbit.com/v2/companies/find?domain={{$json.domain}}",
+            "method": "GET",
+            "authentication": "genericCredentialType",
+            "genericAuthType": "httpHeaderAuth"
+          },
+          "id": "n2",
+          "name": "Enrich Data",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 3,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "contact",
+            "operation": "create",
+            "additionalFields": {
+              "company": "={{$json.name}}",
+              "email": "={{$node[\"Webhook\"].json.email}}",
+              "firstname": "={{$node[\"Webhook\"].json.firstName}}",
+              "lastname": "={{$node[\"Webhook\"].json.lastName}}"
+            }
+          },
+          "id": "n3",
+          "name": "Create CRM Contact",
+          "type": "n8n-nodes-base.hubspot",
+          "typeVersion": 1,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Enrich Data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Enrich Data": {
+          "main": [
+            [
+              {
+                "node": "Create CRM Contact",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "email-responder",
+    "name": "Email Responder",
+    "category": "communication",
+    "description": "Automatically classify incoming emails with AI and send contextual auto-replies.",
+    "complexity": "intermediate",
+    "triggers": [
+      "IMAP Email"
+    ],
+    "actions": [
+      "OpenAI",
+      "Send Email"
+    ],
+    "n8nJson": {
+      "name": "Email Responder",
+      "nodes": [
+        {
+          "parameters": {
+            "mailbox": "INBOX",
+            "options": {}
+          },
+          "id": "n1",
+          "name": "Email Trigger",
+          "type": "n8n-nodes-base.imapEmail",
+          "typeVersion": 2,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "operation": "message",
+            "model": "gpt-4",
+            "messages": {
+              "values": [
+                {
+                  "content": "Classify this email as support/sales/spam and draft a reply:\n\nSubject: {{$json.subject}}\nBody: {{$json.text}}"
+                }
+              ]
+            }
+          },
+          "id": "n2",
+          "name": "AI Classify",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "fromEmail": "noreply@company.com",
+            "toEmail": "={{$node[\"Email Trigger\"].json.from}}",
+            "subject": "Re: {{$node[\"Email Trigger\"].json.subject}}",
+            "text": "={{$json.message.content}}"
+          },
+          "id": "n3",
+          "name": "Send Reply",
+          "type": "n8n-nodes-base.emailSend",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Email Trigger": {
+          "main": [
+            [
+              {
+                "node": "AI Classify",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "AI Classify": {
+          "main": [
+            [
+              {
+                "node": "Send Reply",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "slack-notifier",
+    "name": "Slack Notifier",
+    "category": "communication",
+    "description": "Monitor RSS feeds and post filtered updates to Slack channels automatically.",
+    "complexity": "beginner",
+    "triggers": [
+      "RSS Feed"
+    ],
+    "actions": [
+      "IF",
+      "Slack"
+    ],
+    "n8nJson": {
+      "name": "Slack Notifier",
+      "nodes": [
+        {
+          "parameters": {
+            "url": "https://example.com/feed.xml",
+            "options": {}
+          },
+          "id": "n1",
+          "name": "RSS Feed",
+          "type": "n8n-nodes-base.rssFeedRead",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "string": [
+                {
+                  "value1": "={{$json.title}}",
+                  "operation": "contains",
+                  "value2": "important"
+                }
+              ]
+            }
+          },
+          "id": "n2",
+          "name": "Filter",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 1,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "channel": "#notifications",
+            "text": ":newspaper: *{{$json.title}}*\n{{$json.link}}",
+            "authentication": "oAuth2"
+          },
+          "id": "n3",
+          "name": "Slack",
+          "type": "n8n-nodes-base.slack",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "RSS Feed": {
+          "main": [
+            [
+              {
+                "node": "Filter",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Filter": {
+          "main": [
+            [
+              {
+                "node": "Slack",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "data-sync",
+    "name": "Data Sync",
+    "category": "data",
+    "description": "Scheduled sync from Google Sheets to a database, keeping your data sources aligned.",
+    "complexity": "intermediate",
+    "triggers": [
+      "Schedule"
+    ],
+    "actions": [
+      "Google Sheets",
+      "Postgres"
+    ],
+    "n8nJson": {
+      "name": "Data Sync",
+      "nodes": [
+        {
+          "parameters": {
+            "rule": {
+              "interval": [
+                {
+                  "field": "hours",
+                  "hoursInterval": 1
+                }
+              ]
+            }
+          },
+          "id": "n1",
+          "name": "Schedule",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "read",
+            "sheetId": {
+              "value": ""
+            },
+            "range": "Sheet1"
+          },
+          "id": "n2",
+          "name": "Read Sheet",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "upsert",
+            "table": "records",
+            "columns": "id,name,email,status",
+            "schema": "public"
+          },
+          "id": "n3",
+          "name": "Update DB",
+          "type": "n8n-nodes-base.postgres",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Schedule": {
+          "main": [
+            [
+              {
+                "node": "Read Sheet",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Read Sheet": {
+          "main": [
+            [
+              {
+                "node": "Update DB",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "social-monitor",
+    "name": "Social Monitor",
+    "category": "marketing",
+    "description": "Periodically scrape social mentions and alert your team on Slack when your brand is mentioned.",
+    "complexity": "intermediate",
+    "triggers": [
+      "Schedule"
+    ],
+    "actions": [
+      "HTTP Request",
+      "Slack"
+    ],
+    "n8nJson": {
+      "name": "Social Monitor",
+      "nodes": [
+        {
+          "parameters": {
+            "rule": {
+              "interval": [
+                {
+                  "field": "minutes",
+                  "minutesInterval": 30
+                }
+              ]
+            }
+          },
+          "id": "n1",
+          "name": "Schedule",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "url": "https://api.twitter.com/2/tweets/search/recent?query=yourcompany",
+            "method": "GET",
+            "authentication": "genericCredentialType"
+          },
+          "id": "n2",
+          "name": "Check Mentions",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 3,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "channel": "#social-alerts",
+            "text": "New mention: {{$json.text}}\nBy: @{{$json.author}}",
+            "authentication": "oAuth2"
+          },
+          "id": "n3",
+          "name": "Slack Alert",
+          "type": "n8n-nodes-base.slack",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Schedule": {
+          "main": [
+            [
+              {
+                "node": "Check Mentions",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Check Mentions": {
+          "main": [
+            [
+              {
+                "node": "Slack Alert",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "invoice-processor",
+    "name": "Invoice Processor",
+    "category": "data",
+    "description": "Receive invoice emails, extract PDF data with AI, and log to Google Sheets.",
+    "complexity": "advanced",
+    "triggers": [
+      "IMAP Email"
+    ],
+    "actions": [
+      "OpenAI",
+      "Google Sheets"
+    ],
+    "n8nJson": {
+      "name": "Invoice Processor",
+      "nodes": [
+        {
+          "parameters": {
+            "mailbox": "INBOX",
+            "options": {
+              "searchCriteria": "SUBJECT \"invoice\""
+            }
+          },
+          "id": "n1",
+          "name": "Email Trigger",
+          "type": "n8n-nodes-base.imapEmail",
+          "typeVersion": 2,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "operation": "message",
+            "model": "gpt-4",
+            "messages": {
+              "values": [
+                {
+                  "content": "Extract invoice number, date, total amount, vendor name from this email:\n\n{{$json.text}}"
+                }
+              ]
+            }
+          },
+          "id": "n2",
+          "name": "Extract Data",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "operation": "append",
+            "sheetId": {
+              "value": ""
+            },
+            "range": "Invoices",
+            "columns": {
+              "mappingMode": "autoMapInputData"
+            }
+          },
+          "id": "n3",
+          "name": "Log to Sheet",
+          "type": "n8n-nodes-base.googleSheets",
+          "typeVersion": 4,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Email Trigger": {
+          "main": [
+            [
+              {
+                "node": "Extract Data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Extract Data": {
+          "main": [
+            [
+              {
+                "node": "Log to Sheet",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "customer-onboarding",
+    "name": "Customer Onboarding",
+    "category": "crm",
+    "description": "Full onboarding sequence: welcome email, task creation, and team notification on new signups.",
+    "complexity": "advanced",
+    "triggers": [
+      "Webhook"
+    ],
+    "actions": [
+      "Send Email",
+      "Asana",
+      "Slack"
+    ],
+    "n8nJson": {
+      "name": "Customer Onboarding",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "new-customer",
+            "responseMode": "onReceived"
+          },
+          "id": "n1",
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "fromEmail": "welcome@company.com",
+            "toEmail": "={{$json.email}}",
+            "subject": "Welcome to our platform!",
+            "text": "Hi {{$json.name}}, welcome aboard!"
+          },
+          "id": "n2",
+          "name": "Welcome Email",
+          "type": "n8n-nodes-base.emailSend",
+          "typeVersion": 2,
+          "position": [
+            460,
+            200
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "task",
+            "operation": "create",
+            "name": "Onboard: {{$json.name}}",
+            "workspace": "",
+            "projects": []
+          },
+          "id": "n3",
+          "name": "Create Task",
+          "type": "n8n-nodes-base.asana",
+          "typeVersion": 1,
+          "position": [
+            460,
+            400
+          ]
+        },
+        {
+          "parameters": {
+            "channel": "#new-customers",
+            "text": "New customer: {{$json.name}} ({{$json.email}})",
+            "authentication": "oAuth2"
+          },
+          "id": "n4",
+          "name": "Notify Team",
+          "type": "n8n-nodes-base.slack",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Welcome Email",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Create Task",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Welcome Email": {
+          "main": [
+            [
+              {
+                "node": "Notify Team",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "content-pipeline",
+    "name": "Content Pipeline",
+    "category": "marketing",
+    "description": "Scheduled AI content generation with review queue and automatic CMS publishing.",
+    "complexity": "advanced",
+    "triggers": [
+      "Schedule"
+    ],
+    "actions": [
+      "OpenAI",
+      "HTTP Request"
+    ],
+    "n8nJson": {
+      "name": "Content Pipeline",
+      "nodes": [
+        {
+          "parameters": {
+            "rule": {
+              "interval": [
+                {
+                  "field": "days",
+                  "daysInterval": 1
+                }
+              ]
+            }
+          },
+          "id": "n1",
+          "name": "Schedule",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "operation": "message",
+            "model": "gpt-4",
+            "messages": {
+              "values": [
+                {
+                  "content": "Write a short blog post about automation trends."
+                }
+              ]
+            }
+          },
+          "id": "n2",
+          "name": "Generate Content",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "url": "https://your-cms.com/api/posts",
+            "method": "POST",
+            "body": "{\"title\":\"{{$json.title}}\",\"content\":\"{{$json.message.content}}\",\"status\":\"draft\"}"
+          },
+          "id": "n3",
+          "name": "Post to CMS",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 3,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Schedule": {
+          "main": [
+            [
+              {
+                "node": "Generate Content",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Generate Content": {
+          "main": [
+            [
+              {
+                "node": "Post to CMS",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "error-alert",
+    "name": "Error Alert",
+    "category": "dev",
+    "description": "Receive error webhooks, evaluate thresholds, and alert via PagerDuty or Slack.",
+    "complexity": "intermediate",
+    "triggers": [
+      "Webhook"
+    ],
+    "actions": [
+      "IF",
+      "Slack"
+    ],
+    "n8nJson": {
+      "name": "Error Alert",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "error-hook",
+            "responseMode": "onReceived"
+          },
+          "id": "n1",
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "number": [
+                {
+                  "value1": "={{$json.errorCount}}",
+                  "operation": "largerEqual",
+                  "value2": 5
+                }
+              ]
+            }
+          },
+          "id": "n2",
+          "name": "Check Threshold",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 1,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "channel": "#alerts",
+            "text": "ALERT: {{$json.service}} has {{$json.errorCount}} errors!\n{{$json.message}}",
+            "authentication": "oAuth2"
+          },
+          "id": "n3",
+          "name": "Slack Alert",
+          "type": "n8n-nodes-base.slack",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "Check Threshold",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Check Threshold": {
+          "main": [
+            [
+              {
+                "node": "Slack Alert",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "meeting-summary",
+    "name": "Meeting Summary",
+    "category": "communication",
+    "description": "Capture meeting notes from calendar events, summarize with AI, and email participants.",
+    "complexity": "intermediate",
+    "triggers": [
+      "Schedule"
+    ],
+    "actions": [
+      "Google Calendar",
+      "OpenAI",
+      "Send Email"
+    ],
+    "n8nJson": {
+      "name": "Meeting Summary",
+      "nodes": [
+        {
+          "parameters": {
+            "rule": {
+              "interval": [
+                {
+                  "field": "hours",
+                  "hoursInterval": 1
+                }
+              ]
+            }
+          },
+          "id": "n1",
+          "name": "Schedule",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "event",
+            "operation": "getAll",
+            "calendar": "primary",
+            "returnAll": false,
+            "limit": 5,
+            "options": {
+              "timeMin": "={{$now.minus(1,\"hour\").toISO()}}",
+              "timeMax": "={{$now.toISO()}}"
+            }
+          },
+          "id": "n2",
+          "name": "Get Events",
+          "type": "n8n-nodes-base.googleCalendar",
+          "typeVersion": 3,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "operation": "message",
+            "model": "gpt-4",
+            "messages": {
+              "values": [
+                {
+                  "content": "Summarize key points and action items from this meeting: {{$json.summary}} - {{$json.description}}"
+                }
+              ]
+            }
+          },
+          "id": "n3",
+          "name": "Summarize",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [
+            680,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "fromEmail": "meetings@company.com",
+            "toEmail": "={{$node[\"Get Events\"].json.attendees[0].email}}",
+            "subject": "Meeting Summary: {{$node[\"Get Events\"].json.summary}}",
+            "text": "={{$json.message.content}}"
+          },
+          "id": "n4",
+          "name": "Email Summary",
+          "type": "n8n-nodes-base.emailSend",
+          "typeVersion": 2,
+          "position": [
+            900,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Schedule": {
+          "main": [
+            [
+              {
+                "node": "Get Events",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Get Events": {
+          "main": [
+            [
+              {
+                "node": "Summarize",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Summarize": {
+          "main": [
+            [
+              {
+                "node": "Email Summary",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "inventory-tracker",
+    "name": "Inventory Tracker",
+    "category": "data",
+    "description": "Check stock levels on a schedule, alert when low, and trigger reorder via API.",
+    "complexity": "advanced",
+    "triggers": [
+      "Schedule"
+    ],
+    "actions": [
+      "HTTP Request",
+      "IF",
+      "Slack"
+    ],
+    "n8nJson": {
+      "name": "Inventory Tracker",
+      "nodes": [
+        {
+          "parameters": {
+            "rule": {
+              "interval": [
+                {
+                  "field": "hours",
+                  "hoursInterval": 6
+                }
+              ]
+            }
+          },
+          "id": "n1",
+          "name": "Schedule",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "url": "https://api.inventory.com/stock",
+            "method": "GET"
+          },
+          "id": "n2",
+          "name": "Check Stock",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 3,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "conditions": {
+              "number": [
+                {
+                  "value1": "={{$json.quantity}}",
+                  "operation": "smallerEqual",
+                  "value2": 10
+                }
+              ]
+            }
+          },
+          "id": "n3",
+          "name": "Low Stock?",
+          "type": "n8n-nodes-base.if",
+          "typeVersion": 1,
+          "position": [
+            680,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "channel": "#inventory",
+            "text": "LOW STOCK: {{$json.productName}} — only {{$json.quantity}} remaining",
+            "authentication": "oAuth2"
+          },
+          "id": "n4",
+          "name": "Alert",
+          "type": "n8n-nodes-base.slack",
+          "typeVersion": 2,
+          "position": [
+            900,
+            200
+          ]
+        },
+        {
+          "parameters": {
+            "url": "https://api.supplier.com/reorder",
+            "method": "POST",
+            "body": "{\"sku\":\"{{$json.sku}}\",\"quantity\":100}"
+          },
+          "id": "n5",
+          "name": "Reorder",
+          "type": "n8n-nodes-base.httpRequest",
+          "typeVersion": 3,
+          "position": [
+            900,
+            400
+          ]
+        }
+      ],
+      "connections": {
+        "Schedule": {
+          "main": [
+            [
+              {
+                "node": "Check Stock",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Check Stock": {
+          "main": [
+            [
+              {
+                "node": "Low Stock?",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "Low Stock?": {
+          "main": [
+            [
+              {
+                "node": "Alert",
+                "type": "main",
+                "index": 0
+              },
+              {
+                "node": "Reorder",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  },
+  {
+    "id": "support-ticket-router",
+    "name": "Support Ticket Router",
+    "category": "communication",
+    "description": "Classify incoming support tickets with AI, assign priority, route to the right team.",
+    "complexity": "advanced",
+    "triggers": [
+      "Webhook"
+    ],
+    "actions": [
+      "OpenAI",
+      "Slack",
+      "HTTP Request"
+    ],
+    "n8nJson": {
+      "name": "Support Ticket Router",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "support-ticket",
+            "responseMode": "onReceived"
+          },
+          "id": "n1",
+          "name": "Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "operation": "message",
+            "model": "gpt-4",
+            "messages": {
+              "values": [
+                {
+                  "content": "Classify this support ticket. Return JSON with \"priority\" (P1/P2/P3), \"team\" (billing/technical/general), \"summary\".\n\nTicket: {{$json.subject}}\n{{$json.body}}"
+                }
+              ]
+            }
+          },
+          "id": "n2",
+          "name": "AI Classify",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "parameters": {
+            "channel": "#support-{{$json.team}}",
+            "text": "[{{$json.priority}}] {{$json.summary}}\nFrom: {{$node[\"Webhook\"].json.email}}",
+            "authentication": "oAuth2"
+          },
+          "id": "n3",
+          "name": "Route to Team",
+          "type": "n8n-nodes-base.slack",
+          "typeVersion": 2,
+          "position": [
+            680,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "Webhook": {
+          "main": [
+            [
+              {
+                "node": "AI Classify",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "AI Classify": {
+          "main": [
+            [
+              {
+                "node": "Route to Team",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      },
+      "settings": {
+        "executionOrder": "v1"
+      }
+    }
+  }
+]
