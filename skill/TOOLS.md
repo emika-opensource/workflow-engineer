@@ -1,105 +1,205 @@
-# Tools Reference
+---
+name: workflow-engineer
+description: AI-powered workflow automation dashboard proxying n8n — manage workflows, executions, templates, connectors, and config
+---
+
+## ⛔ NEVER write data as files. ALWAYS use the API.
 
 ## CRITICAL: Port 3000 Only
 You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
 If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
-NEVER use port 3001, 8080, or any other port. ONLY port 3000.
 
-## ⚠️ IMPORTANT: Port 3000
+## 🚨 Your App is ALREADY RUNNING
+Your **Workflow Engineer** web application is ALREADY RUNNING on port 3000.
+- **DO NOT** kill anything on port 3000
+- **DO NOT** try to start a new server
+- All API endpoints below are served by this app at `http://localhost:3000`
 
-Your **Workflow Dashboard** web application is ALREADY RUNNING on port 3000. It starts automatically via start.sh.
+## API Endpoints Summary
 
-- **DO NOT** kill anything on port 3000 — that is YOUR app
-- **DO NOT** try to start a new server on port 3000
-- The app is accessible to the user via the browser panel (iframe)
-- If you need to build something for the user, deploy it on a DIFFERENT port using PM2
+| Category | Endpoints |
+|----------|-----------|
+| Status | `GET /api/status` |
+| Config | `GET/PUT /api/config` |
+| Workflows | `GET/POST /api/workflows`, `GET/PUT/DELETE /api/workflows/:id` |
+| Workflow Actions | `POST /api/workflows/:id/activate`, `POST /api/workflows/:id/deactivate`, `POST /api/workflows/:id/execute` |
+| Executions | `GET /api/executions`, `GET /api/executions/:id` |
+| Templates | `GET /api/templates`, `GET /api/templates/:id`, `POST /api/templates/:id/deploy` |
+| Connectors | `GET /api/connectors`, `GET /api/connectors/:name` |
+| Analytics | `GET /api/analytics` |
 
+## Detailed API Reference
 
-## n8n API (port 5678)
+### Status
 
-Base: `http://localhost:5678/api/v1`
-Auth: `X-N8N-API-KEY: <key>`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /workflows | List workflows |
-| POST | /workflows | Create workflow |
-| GET | /workflows/:id | Get workflow |
-| PUT | /workflows/:id | Update workflow |
-| DELETE | /workflows/:id | Delete workflow |
-| POST | /workflows/:id/activate | Activate |
-| POST | /workflows/:id/deactivate | Deactivate |
-| POST | /workflows/:id/run | Execute |
-| GET | /executions | List executions |
-| GET | /executions/:id | Get execution |
-| GET | /credentials | List credentials |
-
-## Companion API (port 3000)
-
-Base: `http://localhost:3000/api`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /status | n8n health check |
-| GET | /workflows | List workflows (proxy) |
-| POST | /workflows | Create workflow (proxy) |
-| GET | /workflows/:id | Workflow detail |
-| POST | /workflows/:id/execute | Execute workflow |
-| GET | /templates | List templates (?category=) |
-| GET | /templates/:id | Template detail + n8n JSON |
-| POST | /templates/:id/deploy | Deploy template to n8n |
-| GET | /connectors | List connectors (?category=&search=) |
-| GET | /connectors/:name | Connector setup guide |
-| GET | /analytics | Execution stats |
-| GET | /config | Get config |
-| PUT | /config | Update config |
-| GET | /executions | List executions (proxy) |
-
-## Screenshots & File Sharing
-
-### Taking Screenshots
-Use Playwright (pre-installed) to capture any website:
+**Check n8n connectivity**:
 ```bash
-npx playwright screenshot --browser chromium https://example.com /tmp/screenshot.png
+curl http://localhost:3000/api/status
+```
+Response:
+```json
+{
+  "n8n": "running",
+  "statusCode": 200,
+  "configured": true,
+  "firstRun": false
+}
+```
+Possible `n8n` values: `running`, `error`, `offline`.
+
+### Config
+
+**Get config** (API key masked):
+```bash
+curl http://localhost:3000/api/config
+```
+Response:
+```json
+{
+  "n8nApiKey": "****abcd",
+  "preferences": { "theme": "dark" },
+  "connectedServices": [],
+  "setupComplete": true
+}
 ```
 
-If Chromium is not installed yet, install it first:
+**Update config**:
 ```bash
-npx playwright install chromium
+curl -X PUT http://localhost:3000/api/config \
+  -H "Content-Type: application/json" \
+  -d '{
+    "n8nApiKey": "your-n8n-api-key",
+    "preferences": { "theme": "dark" },
+    "setupComplete": true
+  }'
+```
+Allowed fields: `n8nApiKey`, `preferences`, `connectedServices`, `setupComplete`.
+
+### Workflows (proxied to n8n)
+
+**List all workflows**:
+```bash
+curl http://localhost:3000/api/workflows
 ```
 
-### Sharing Files & Images with the User
-Upload to the Emika API to get a shareable URL:
+**Create a workflow**:
 ```bash
-# Get your seat token
-
-## CRITICAL: Port 3000 Only
-You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
-If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
-NEVER use port 3001, 8080, or any other port. ONLY port 3000.
-TOKEN=$(python3 -c "import json; print(json.load(open('/home/node/.openclaw/openclaw.json'))['gateway']['auth']['token'])")
-
-# Upload any file
-
-## CRITICAL: Port 3000 Only
-You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
-If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
-NEVER use port 3001, 8080, or any other port. ONLY port 3000.
-URL=$(curl -s -X POST "http://162.55.102.58:8080/uploads/seat" \
-  -H "X-Seat-Token: $TOKEN" \
-  -F "file=@/tmp/screenshot.png" | python3 -c "import sys,json; print(json.load(sys.stdin)['full_url'])")
-
-# Include the URL in your response as markdown image
-
-## CRITICAL: Port 3000 Only
-You MUST deploy ONLY on port 3000. Nginx ONLY proxies port 3000 — any other port will NOT be accessible.
-If port 3000 is busy: `pm2 delete all` then `pm2 start your-app.js --name app` on port 3000.
-NEVER use port 3001, 8080, or any other port. ONLY port 3000.
-echo "![Screenshot]($URL)"
+curl -X POST http://localhost:3000/api/workflows \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My Workflow",
+    "nodes": [],
+    "connections": {},
+    "settings": {}
+  }'
 ```
 
-**IMPORTANT:**
-- Do NOT use the `read` tool on image files — it sends the image to the AI model but does NOT display it to the user
-- Always upload files and share the URL instead
-- The URL format is `https://api.emika.ai/uploads/seats/<filename>`
-- Supports: images, PDFs, documents, code files, archives (max 50MB)
+**Get a workflow**:
+```bash
+curl http://localhost:3000/api/workflows/WORKFLOW_ID
+```
+
+**Update a workflow**:
+```bash
+curl -X PUT http://localhost:3000/api/workflows/WORKFLOW_ID \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "Updated Name", "active": true }'
+```
+
+**Delete a workflow**:
+```bash
+curl -X DELETE http://localhost:3000/api/workflows/WORKFLOW_ID
+```
+
+**Activate a workflow**:
+```bash
+curl -X POST http://localhost:3000/api/workflows/WORKFLOW_ID/activate
+```
+
+**Deactivate a workflow**:
+```bash
+curl -X POST http://localhost:3000/api/workflows/WORKFLOW_ID/deactivate
+```
+
+**Execute a workflow** (manual run):
+```bash
+curl -X POST http://localhost:3000/api/workflows/WORKFLOW_ID/execute \
+  -H "Content-Type: application/json" \
+  -d '{ "data": { "key": "value" } }'
+```
+
+### Executions
+
+**List executions**:
+```bash
+curl http://localhost:3000/api/executions
+curl "http://localhost:3000/api/executions?limit=20&workflowId=WORKFLOW_ID"
+```
+Query params are forwarded to n8n.
+
+**Get execution details**:
+```bash
+curl http://localhost:3000/api/executions/EXECUTION_ID
+```
+
+### Templates
+
+**List templates** (with optional category filter):
+```bash
+curl http://localhost:3000/api/templates
+curl "http://localhost:3000/api/templates?category=marketing"
+```
+Response: Array of template objects (without n8nJson for list view).
+
+**Get template details** (includes n8nJson):
+```bash
+curl http://localhost:3000/api/templates/TEMPLATE_ID
+```
+
+**Deploy a template** (creates workflow in n8n):
+```bash
+curl -X POST http://localhost:3000/api/templates/TEMPLATE_ID/deploy
+```
+Response:
+```json
+{
+  "ok": true,
+  "workflow": { "id": "...", "name": "..." },
+  "webhookUrl": { "test": "http://localhost:5678/webhook-test/path", "production": "http://localhost:5678/webhook/path" },
+  "credentialsNeeded": [{ "node": "Slack", "connector": "Slack", "authType": "oauth2" }]
+}
+```
+
+### Connectors
+
+**List connectors** (with optional filters):
+```bash
+curl http://localhost:3000/api/connectors
+curl "http://localhost:3000/api/connectors?category=communication"
+curl "http://localhost:3000/api/connectors?search=slack"
+```
+
+**Get connector details**:
+```bash
+curl http://localhost:3000/api/connectors/CONNECTOR_NAME
+```
+
+### Analytics
+
+**Get workflow analytics**:
+```bash
+curl http://localhost:3000/api/analytics
+```
+Response:
+```json
+{
+  "totalWorkflows": 5,
+  "activeWorkflows": 3,
+  "totalExecutions": 100,
+  "successCount": 85,
+  "errorCount": 15,
+  "successRate": 85,
+  "recentExecutions": [...],
+  "execError": null
+}
+```
