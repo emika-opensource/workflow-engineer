@@ -11,7 +11,8 @@ export N8N_PROTOCOL=http
 export N8N_HOST=localhost
 export GENERIC_TIMEZONE=UTC
 export N8N_RUNNERS_ENABLED=true
-export N8N_SECURE_COOKIE=false
+export N8N_SECURE_COOKIE=true
+export N8N_PROXY_HOPS=2
 
 echo "Starting n8n on port 3000..."
 exec n8n start
