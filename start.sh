@@ -12,7 +12,11 @@ export N8N_HOST=localhost
 export GENERIC_TIMEZONE=UTC
 export N8N_RUNNERS_ENABLED=true
 export N8N_SECURE_COOKIE=true
+export N8N_SAMESITE_COOKIE=none
 export N8N_PROXY_HOPS=2
+export N8N_DIAGNOSTICS_ENABLED=false
+export N8N_VERSION_NOTIFICATIONS_ENABLED=false
+export N8N_TEMPLATES_ENABLED=true
 
 echo "Starting n8n on port 3000..."
 exec n8n start
