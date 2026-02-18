@@ -23,6 +23,11 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Content publishing — AI-generated reports, dashboards, analyses
+const CONTENT_DIR = path.join(__dirname, 'content');
+try { require('fs').mkdirSync(CONTENT_DIR, { recursive: true }); } catch(e) {}
+app.use('/content', express.static(CONTENT_DIR));
+
 // --- Config helpers ---
 function getConfig() {
   try { return fs.readJsonSync(CONFIG_FILE); } catch { return { n8nApiKey: '', preferences: { theme: 'dark' }, connectedServices: [], setupComplete: false }; }
